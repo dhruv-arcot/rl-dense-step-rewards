@@ -1,0 +1,50 @@
+model:
+  base_model: "Qwen/Qwen2.5-7B-Instruct"
+  max_seq_length: 2048
+  torch_dtype: "bfloat16"
+
+lora:
+  r: 16
+  lora_alpha: 32
+  lora_dropout: 0.05
+  # All attention + MLP projections in Qwen2.5
+  target_modules:
+    - q_proj
+    - k_proj
+    - v_proj
+    - o_proj
+    - gate_proj
+    - up_proj
+    - down_proj
+  bias: "none"
+
+training:
+  num_train_epochs: 3
+  per_device_train_batch_size: 4
+  gradient_accumulation_steps: 4   # effective batch = 16
+  learning_rate: 2.0e-4
+  warmup_ratio: 0.03
+  lr_scheduler_type: "cosine"
+  optim: "paged_adamw_32bit"
+  logging_steps: 10
+  save_steps: 100
+  eval_steps: 100
+  save_total_limit: 2
+  fp16: false
+  bf16: true
+  dataloader_num_workers: 4
+  report_to: "none"
+
+data:
+  dataset_name: "openai/gsm8k"
+  dataset_config: "main"
+  train_split: "train"
+  test_split: "test"
+  local_train_path: "data/raw/gsm8k_train.jsonl"
+  local_test_path: "data/raw/gsm8k_test.jsonl"
+
+# output_dir/logging_dir below are Modal Volume paths used by modal/modal_sft.py.
+# For a local run, point these at a local directory instead.
+output:
+  output_dir: "/vol/sft_checkpoint"
+  logging_dir: "/vol/sft_logs"

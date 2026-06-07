@@ -1,0 +1,58 @@
+model:
+  base_model: "Qwen/Qwen2.5-7B-Instruct"
+  sft_checkpoint: "/vol/sft_checkpoint"
+  max_seq_length: 2048
+  torch_dtype: "bfloat16"
+
+lora:
+  r: 16
+  lora_alpha: 32
+  lora_dropout: 0.05
+  target_modules:
+    - q_proj
+    - k_proj
+    - v_proj
+    - o_proj
+  bias: "none"
+
+prm_head:
+  # Qwen2.5-7B hidden size is 3584
+  hidden_dim: 3584
+  output_dim: 1
+  # Set to true to train on continuous PAV rewards (data/generate_prm_data.py) instead of binary BCE
+  use_pav: false
+
+training:
+  num_train_epochs: 3
+  per_device_train_batch_size: 1
+  gradient_accumulation_steps: 16   # effective batch = 16
+  max_steps_per_run: 3000           # each Modal run stops here and saves; next run resumes
+  learning_rate: 1.0e-4
+  warmup_ratio: 0.03
+  lr_scheduler_type: "cosine"
+  optim: "paged_adamw_32bit"
+  logging_steps: 10
+  save_steps: 200
+  eval_steps: 200
+  save_total_limit: 2
+  fp16: false
+  bf16: true
+
+data:
+  train_file: "/vol/data/prm_train.jsonl"
+  val_file: "/vol/data/prm_val.jsonl"
+  # Math-Shepherd uses the Cyrillic "ки" token as a step separator
+  step_separator: "ки"
+  max_train_samples: 50000
+
+# Sampling config for PAV-style reward generation (data/generate_prm_data.py)
+pav:
+  k_samples: 8
+  temperature: 0.7
+  max_new_tokens: 512
+
+# output_dir/logging_dir below are Modal Volume paths used by modal/modal_prm.py.
+# For a local run, point these at a local directory instead.
+output:
+  output_dir: "/vol/prm_checkpoint"
+  logging_dir: "/vol/prm_logs"
