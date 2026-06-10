@@ -12,6 +12,7 @@ DTYPE_MAP = {"bfloat16": torch.bfloat16, "float16": torch.float16, "float32": to
 
 
 def load_config(config_path: str) -> dict:
+    """Load a YAML config file and return it as a dict."""
     with open(config_path) as f:
         return yaml.safe_load(f)
 
@@ -41,6 +42,7 @@ def load_base_model(
 
 
 def build_lora_config(lora_cfg: dict) -> LoraConfig:
+    """Build a causal-LM LoraConfig from the 'lora' section of a project config."""
     return LoraConfig(
         r=lora_cfg["r"],
         lora_alpha=lora_cfg["lora_alpha"],
@@ -52,6 +54,7 @@ def build_lora_config(lora_cfg: dict) -> LoraConfig:
 
 
 def apply_lora(model, lora_config: LoraConfig):
+    """Wrap a base model with a LoRA adapter and return the resulting PEFT model."""
     return get_peft_model(model, lora_config)
 
 

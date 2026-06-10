@@ -2,10 +2,10 @@
 
 Two-stage pipeline (run after PRM training is complete):
 
-    Stage A — generate preference pairs from the GSM8K train set:
+    Stage A - generate preference pairs from the GSM8K train set:
         modal run --detach modal/modal_dpo.py::generate_pairs [--max-train-examples 500] [--n-samples 4]
 
-    Stage B — DPO fine-tune the SFT policy on those pairs:
+    Stage B - DPO fine-tune the SFT policy on those pairs:
         modal run --detach modal/modal_dpo.py::train
 
 Checkpoints land in the 'gsm8k-training-vol' volume at /vol/rl_checkpoint.
@@ -142,7 +142,7 @@ def generate_pairs(max_train_examples: int = 500, n_samples: int = 4):
     """Stage A: generate DPO pairs. Run after PRM training is complete."""
     print(f"Generating DPO pairs for {max_train_examples} problems (N={n_samples} each)...")
     result = run_generate_pairs.remote(max_train_examples=max_train_examples, n_samples=n_samples)
-    print(f"Done. {result['n_pairs']} pairs — "
+    print(f"Done. {result['n_pairs']} pairs - "
           f"correct/incorrect: {result['correct_vs_incorrect']}, "
           f"PRM-ranked: {result['prm_ranked']}, skipped: {result['skipped_gap']}")
 

@@ -5,7 +5,7 @@ PAV (Progress as a Verifier, Setlur et al. 2024):
 
 P(correct | s_0..t) is estimated by sampling K completions from the prefix
 ending at step t and measuring the fraction that reach the correct answer.
-This gives a continuous, dense alternative to Math-Shepherd's binary labels —
+This gives a continuous, dense alternative to Math-Shepherd's binary labels -
 set `prm_head.use_pav: true` in configs/prm_config.yaml to train on it.
 
 Usage:
@@ -19,6 +19,7 @@ Usage:
 import argparse
 import json
 import os
+import re
 from typing import List, Optional
 
 import torch
@@ -26,10 +27,19 @@ from peft import PeftModel
 from tqdm import tqdm
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
-from src.helpers import extract_answer_from_output
-
 BASE_MODEL = "Qwen/Qwen2.5-7B-Instruct"
 STEP_SEPARATOR = " ки\n"
+
+
+def extract_answer_from_output(text: str) -> Optional[int]:
+    """Extract the numeric answer following '####' (GSM8K answer format)."""
+    match = re.search(r"####\s*(-?[\d,]+)", text)
+    if match is None:
+        return None
+    try:
+        return int(match.group(1).replace(",", ""))
+    except ValueError:
+        return None
 
 
 def generate_completions(
@@ -77,6 +87,7 @@ def main(
     max_new_tokens: int = 512,
     max_examples: Optional[int] = None,
 ) -> None:
+    """Generate PAV reward data for each GSM8K training example and write it to output_path."""
     device = "cuda" if torch.cuda.is_available() else "cpu"
     print(f"Loading SFT model from {sft_checkpoint} on {device}...")
 

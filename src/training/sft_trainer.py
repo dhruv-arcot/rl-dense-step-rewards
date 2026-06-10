@@ -41,6 +41,7 @@ def prepare_gsm8k_dataset(config: dict, tokenizer, local_path: Optional[str] = N
         )
 
     def format_fn(example):
+        """Render one raw GSM8K record as a chat-formatted 'text' field."""
         question = example.get("question") or example.get("input") or ""
         answer = example.get("answer") or example.get("output") or ""
         return {"text": format_sft_example(question, answer, tokenizer)}
@@ -51,6 +52,7 @@ def prepare_gsm8k_dataset(config: dict, tokenizer, local_path: Optional[str] = N
 
 
 def build_training_args(config: dict) -> SFTConfig:
+    """Build an SFTConfig from the 'training' and 'output' sections of the config."""
     t = config["training"]
     out = config["output"]
     return SFTConfig(
@@ -110,6 +112,7 @@ def run_sft_training(config_path: str = "configs/sft_config.yaml") -> None:
 
 
 def main() -> None:
+    """Entry point: parse args and run SFT training."""
     parser = argparse.ArgumentParser(description="Run SFT training on GSM8K")
     parser.add_argument("--config", default="configs/sft_config.yaml", help="Path to SFT config YAML")
     args = parser.parse_args()

@@ -56,6 +56,7 @@ def _setup():
 
 
 def _print_accuracy(label: str, results: dict) -> None:
+    """Print a formatted accuracy summary line."""
     print(f"\n{'=' * 40}")
     print(f"{label}: {results['accuracy']:.4f}  ({results['n_correct']}/{results['n_total']})")
     print("=" * 40)
@@ -63,7 +64,7 @@ def _print_accuracy(label: str, results: dict) -> None:
 
 @app.function(**GPU_FN_KWARGS)
 def run_zero_shot(max_examples: int = None) -> dict:
-    """Greedy-eval the bare base model (no LoRA) — establishes the pre-finetuning baseline."""
+    """Greedy-eval the bare base model (no LoRA) - establishes the pre-finetuning baseline."""
     _setup()
     import torch
     from transformers import AutoModelForCausalLM
@@ -244,6 +245,7 @@ def run_prm_eval(max_examples: int = 2000) -> dict:
 
 @app.local_entrypoint()
 def zero_shot(max_examples: int = 500):
+    """Submit a zero-shot (no LoRA) greedy eval job to Modal."""
     print(f"Submitting zero-shot eval ({max_examples} examples)...")
     results = run_zero_shot.remote(max_examples=max_examples or None)
     print(f"\nZero-shot: {results['accuracy']:.4f} ({results['n_correct']}/{results['n_total']})")
@@ -251,6 +253,7 @@ def zero_shot(max_examples: int = 500):
 
 @app.local_entrypoint()
 def sft_eval(max_examples: int = 0):
+    """Submit an SFT-checkpoint greedy eval job to Modal."""
     print("Submitting SFT eval...")
     results = run_sft_eval.remote(max_examples=max_examples or None)
     print(f"\nSFT: {results['accuracy']:.4f} ({results['n_correct']}/{results['n_total']})")
@@ -258,6 +261,7 @@ def sft_eval(max_examples: int = 0):
 
 @app.local_entrypoint()
 def best_of_n(n_samples: int = 8, max_examples: int = 0):
+    """Submit a PRM-reranked best-of-N eval job to Modal."""
     print(f"Submitting best-of-{n_samples} eval...")
     results = run_best_of_n.remote(n_samples=n_samples, max_examples=max_examples or None)
     print(f"\nBest-of-{n_samples}: {results['accuracy']:.4f} ({results['n_correct']}/{results['n_total']})")
@@ -265,6 +269,7 @@ def best_of_n(n_samples: int = 8, max_examples: int = 0):
 
 @app.local_entrypoint()
 def rl_eval(max_examples: int = 0):
+    """Submit a DPO (RL) checkpoint greedy eval job to Modal."""
     print("Submitting RL eval...")
     results = run_rl_eval.remote(max_examples=max_examples or None)
     print(f"\nRL: {results['accuracy']:.4f} ({results['n_correct']}/{results['n_total']})")
@@ -272,6 +277,7 @@ def rl_eval(max_examples: int = 0):
 
 @app.local_entrypoint()
 def prm_eval(max_examples: int = 2000):
+    """Submit a PRM step-level eval (AUC-ROC + accuracy) job to Modal."""
     print(f"Submitting PRM eval ({max_examples} examples)...")
     results = run_prm_eval.remote(max_examples=max_examples or None)
     print(f"\nAUC-ROC: {results['auc_roc']:.4f}  |  Step Acc: {results['accuracy']:.4f}  "

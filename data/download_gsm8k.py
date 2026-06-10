@@ -23,6 +23,7 @@ def extract_numeric_answer(answer_text: str) -> Optional[int]:
 
 
 def save_jsonl(records: list, path: str) -> None:
+    """Write records to a JSONL file, creating parent directories as needed."""
     os.makedirs(os.path.dirname(path), exist_ok=True)
     with open(path, "w") as f:
         for record in records:
@@ -30,6 +31,7 @@ def save_jsonl(records: list, path: str) -> None:
 
 
 def download_and_save(output_dir: str = "data/raw") -> None:
+    """Download GSM8K from HuggingFace and write train/test JSONL files to output_dir."""
     print("Loading GSM8K from HuggingFace...")
     dataset = load_dataset("openai/gsm8k", "main")
 
@@ -52,6 +54,7 @@ def download_and_save(output_dir: str = "data/raw") -> None:
 
 
 def main() -> None:
+    """Entry point: parse args and download GSM8K."""
     parser = argparse.ArgumentParser(description="Download GSM8K dataset")
     parser.add_argument("--output_dir", default="data/raw", help="Directory to save JSONL files")
     args = parser.parse_args()

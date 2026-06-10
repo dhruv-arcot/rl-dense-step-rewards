@@ -73,6 +73,7 @@ def run_sft() -> None:
 
 @app.local_entrypoint()
 def main() -> None:
+    """Submit the SFT training job to Modal."""
     print("Submitting SFT training job to Modal...")
     run_sft.remote()
     print("Job submitted. Monitor progress in the Modal dashboard.")

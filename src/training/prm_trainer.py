@@ -50,6 +50,7 @@ class PRMDataset(Dataset):
         print(f"  Loaded {len(self.examples)} examples")
 
     def _preprocess(self, raw: List[dict]) -> List[dict]:
+        """Tokenize each raw record and locate its step-boundary positions, dropping empty examples."""
         processed = []
         for rec in tqdm(raw, desc="Tokenising"):
             problem, steps, labels = rec["problem"], rec["steps"], rec["labels"]
@@ -76,9 +77,11 @@ class PRMDataset(Dataset):
         return processed
 
     def __len__(self) -> int:
+        """Return the number of processed examples."""
         return len(self.examples)
 
     def __getitem__(self, idx: int) -> dict:
+        """Return the pre-processed example at idx."""
         return self.examples[idx]
 
 
@@ -89,6 +92,7 @@ class PRMDataCollator:
         self.pad_id = tokenizer.pad_token_id or tokenizer.eos_token_id
 
     def __call__(self, batch: List[dict]) -> dict:
+        """Pad input_ids, attention_mask, step_labels, and step_mask to per-batch maximums."""
         max_seq = max(item["input_ids"].shape[0] for item in batch)
         max_steps = max(len(item["step_positions"]) for item in batch)
 
@@ -296,7 +300,7 @@ def run_prm_training(config_path: str = "configs/prm_config.yaml") -> None:
                     return
 
         avg_val_loss, val_acc = _evaluate(prm_model, val_loader, device, use_pav)
-        print(f"Epoch {epoch + 1} — val loss: {avg_val_loss:.4f}  val step-acc: {val_acc:.4f}")
+        print(f"Epoch {epoch + 1} - val loss: {avg_val_loss:.4f}  val step-acc: {val_acc:.4f}")
 
     save_prm_checkpoint(prm_model, out_cfg["output_dir"], global_step)
     torch.save(prm_model.prm_head.state_dict(), os.path.join(out_cfg["output_dir"], "prm_head.pt"))
@@ -304,6 +308,7 @@ def run_prm_training(config_path: str = "configs/prm_config.yaml") -> None:
 
 
 def main() -> None:
+    """Entry point: parse args and run PRM training."""
     parser = argparse.ArgumentParser(description="Run PRM training")
     parser.add_argument("--config", default="configs/prm_config.yaml", help="Path to PRM config YAML")
     args = parser.parse_args()

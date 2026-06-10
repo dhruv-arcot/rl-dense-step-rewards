@@ -1,6 +1,6 @@
 """DPO preference-pair generation and fine-tuning, guided by the PRM.
 
-Stage A — generate_dpo_pairs: for each problem, sample N solutions from the SFT
+Stage A - generate_dpo_pairs: for each problem, sample N solutions from the SFT
 model, score each with the PRM, and emit a (prompt, chosen, rejected) triple:
     1. correct vs. incorrect available -> chosen = best-scored correct,
        rejected = worst-scored incorrect (strong signal)
@@ -8,10 +8,10 @@ model, score each with the PRM, and emit a (prompt, chosen, rejected) triple:
        score (process-supervision signal); skipped if the score gap is too small
        to be informative
 
-Stage B — run_dpo_training: standard LoRA DPO fine-tuning of the SFT policy
+Stage B - run_dpo_training: standard LoRA DPO fine-tuning of the SFT policy
 against a frozen copy of itself as the reference model.
 
-Usage (Stage A pairs are produced on Modal — see modal/modal_dpo.py):
+Usage (Stage A pairs are produced on Modal - see modal/modal_dpo.py):
     python -m src.training.dpo_trainer --pairs_path /vol/dpo_pairs.jsonl \
         --sft_checkpoint /vol/sft_checkpoint --output_dir /vol/rl_checkpoint
 """
@@ -21,7 +21,10 @@ import json
 import os
 from typing import Dict, List, Tuple
 
+from datasets import Dataset
+from peft import PeftModel
 from tqdm import tqdm
+from trl import DPOConfig, DPOTrainer
 
 from src.evaluation.eval_gsm8k import build_generation_prompt, generate_n_solutions, score_solution_with_prm
 from src.helpers import extract_answer_from_output, load_base_model, load_tokenizer
@@ -86,10 +89,6 @@ def run_dpo_training(
     base_model_name: str = "Qwen/Qwen2.5-7B-Instruct",
 ) -> None:
     """LoRA DPO fine-tuning of the SFT policy against a frozen reference copy of itself."""
-    from datasets import Dataset
-    from peft import PeftModel
-    from trl import DPOConfig, DPOTrainer
-
     print(f"Loading DPO pairs from {pairs_path}...")
     with open(pairs_path) as f:
         pairs = [json.loads(line) for line in f]
@@ -144,6 +143,7 @@ def run_dpo_training(
 
 
 def main() -> None:
+    """Entry point: parse args and run DPO fine-tuning."""
     parser = argparse.ArgumentParser(description="Run DPO fine-tuning on pre-generated preference pairs")
     parser.add_argument("--pairs_path", required=True, help="JSONL of {prompt, chosen, rejected} triples")
     parser.add_argument("--sft_checkpoint", required=True, help="Path to the SFT LoRA adapter")

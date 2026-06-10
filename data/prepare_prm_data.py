@@ -71,6 +71,7 @@ def parse_math_shepherd_example(row: dict) -> Optional[dict]:
 
 
 def load_and_parse_dataset() -> List[dict]:
+    """Download Math-Shepherd from HuggingFace and parse every row into {problem, steps, labels}."""
     print("Loading Math-Shepherd from HuggingFace...")
     dataset = load_dataset("peiyi9979/math-shepherd", split="train")
 
@@ -87,6 +88,7 @@ def load_and_parse_dataset() -> List[dict]:
 
 
 def split_train_val(data: List[dict], val_fraction: float = 0.1, seed: int = 42) -> Tuple[List[dict], List[dict]]:
+    """Shuffle data deterministically and split off val_fraction as the validation set."""
     random.seed(seed)
     shuffled = data[:]
     random.shuffle(shuffled)
@@ -95,6 +97,7 @@ def split_train_val(data: List[dict], val_fraction: float = 0.1, seed: int = 42)
 
 
 def save_jsonl(data: List[dict], path: str) -> None:
+    """Write records to a JSONL file, creating parent directories as needed."""
     os.makedirs(os.path.dirname(path), exist_ok=True)
     with open(path, "w") as f:
         for record in data:
@@ -102,6 +105,7 @@ def save_jsonl(data: List[dict], path: str) -> None:
 
 
 def main(output_dir: str = "data/processed") -> None:
+    """Parse Math-Shepherd into step-level PRM data and save train/val JSONL splits."""
     data = load_and_parse_dataset()
     train_data, val_data = split_train_val(data, val_fraction=0.1)
 

@@ -18,12 +18,12 @@ GSM8K + Math-Shepherd  →  SFT (LoRA)  →  PRM (LoRA + step-scoring head)
                                                        DPO fine-tuning (RL policy)
 ```
 
-1. **SFT** — Qwen2.5-7B-Instruct + LoRA fine-tuned on GSM8K solutions (`src/training/sft_trainer.py`).
-2. **PRM** — a `PRMHead` on top of the SFT backbone scores each reasoning step using
+1. **SFT** - Qwen2.5-7B-Instruct + LoRA fine-tuned on GSM8K solutions (`src/training/sft_trainer.py`).
+2. **PRM** - a `PRMHead` on top of the SFT backbone scores each reasoning step using
    Math-Shepherd's "ки"-separated step labels (`src/training/prm_trainer.py`).
-3. **Best-of-N** — sample N candidate solutions from the SFT model, rerank with PRM scores
+3. **Best-of-N** - sample N candidate solutions from the SFT model, rerank with PRM scores
    (`src/evaluation/eval_gsm8k.py`).
-4. **DPO** — generate preference pairs by sampling candidates and ranking them with the PRM,
+4. **DPO** - generate preference pairs by sampling candidates and ranking them with the PRM,
    then DPO-tune the SFT policy on those pairs (`src/training/dpo_trainer.py`).
 
 All training/eval runs were executed on Modal (`modal/`) using A100 GPUs.
@@ -31,7 +31,7 @@ All training/eval runs were executed on Modal (`modal/`) using A100 GPUs.
 ## Repo layout
 
 ```
-configs/            sft_config.yaml, prm_config.yaml — hyperparameters & paths
+configs/            sft_config.yaml, prm_config.yaml - hyperparameters & paths
 data/               dataset download + preprocessing scripts
 src/
   helpers.py        shared utilities (model/tokenizer loading, LoRA setup, step-position finding)
@@ -61,8 +61,8 @@ python data/prepare_prm_data.py      # → data/processed/prm_{train,val}.jsonl 
 ```
 
 `data/generate_prm_data.py` is a post-milestone scaffold for generating
-continuous **PAV** (Progress as a Verifier) step rewards — `PAV_t = P(correct |
-s_0..t) - P(correct | s_0..t-1)` estimated via K sampled completions — as a
+continuous **PAV** (Progress as a Verifier) step rewards - `PAV_t = P(correct |
+s_0..t) - P(correct | s_0..t-1)` estimated via K sampled completions - as a
 denser alternative to Math-Shepherd's binary correct/incorrect labels.
 
 ## Running the pipeline (Modal)

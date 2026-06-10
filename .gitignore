@@ -1,0 +1,13 @@
+__pycache__/
+*.pyc
+
+# Generated/downloaded data and checkpoints (regenerable, see README)
+data/raw/
+data/processed/
+*_checkpoint/
+*.safetensors
+*.bin
+*.pt
+
+.DS_Store
+.venv/

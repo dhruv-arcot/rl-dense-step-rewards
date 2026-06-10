@@ -53,7 +53,7 @@ class ProcessRewardModel(nn.Module):
             step_positions: per-example list of step-end token indices (ragged)
         Returns:
             step_logits: (batch, max_steps, 1)
-            step_mask:   (batch, max_steps) bool — True where a step is present
+            step_mask:   (batch, max_steps) bool - True where a step is present
         """
         outputs = self.base_model(
             input_ids=input_ids,

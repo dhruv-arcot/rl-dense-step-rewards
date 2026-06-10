@@ -1,8 +1,8 @@
 """Evaluate a model on the GSM8K test set.
 
 Two modes:
-    greedy      — generate one solution per problem, check exact-match accuracy
-    best_of_n   — sample N solutions, rerank with the PRM, keep the top-scoring one
+    greedy      - generate one solution per problem, check exact-match accuracy
+    best_of_n   - sample N solutions, rerank with the PRM, keep the top-scoring one
 
 Usage:
     python -m src.evaluation.eval_gsm8k --sft_checkpoint /vol/sft_checkpoint --eval_mode greedy
@@ -136,11 +136,13 @@ def evaluate_best_of_n(
 
 
 def load_test_data(path: str = "data/raw/gsm8k_test.jsonl") -> List[dict]:
+    """Load GSM8K examples from a JSONL file."""
     with open(path) as f:
         return [json.loads(line) for line in f]
 
 
 def main() -> None:
+    """Entry point: parse args and run GSM8K evaluation (greedy or best-of-N)."""
     parser = argparse.ArgumentParser(description="Evaluate model on GSM8K")
     parser.add_argument("--sft_checkpoint", required=True, help="Path to the SFT LoRA adapter")
     parser.add_argument("--prm_checkpoint", default=None, help="Path to the PRM checkpoint (required for best_of_n)")

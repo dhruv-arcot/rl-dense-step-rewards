@@ -1,8 +1,8 @@
 """Evaluate PRM quality on held-out Math-Shepherd step labels.
 
 Metrics:
-    AUC-ROC  — ability to rank correct steps above incorrect ones
-    Accuracy — binary classification accuracy at threshold 0.5
+    AUC-ROC  - ability to rank correct steps above incorrect ones
+    Accuracy - binary classification accuracy at threshold 0.5
 
 Usage:
     python -m src.evaluation.eval_prm \
@@ -10,6 +10,7 @@ Usage:
 """
 
 import argparse
+import json
 import os
 from typing import List, Tuple
 
@@ -75,6 +76,7 @@ def compute_auc_roc(scores: List[float], labels: List[int]) -> float:
 
 
 def compute_step_accuracy(scores: List[float], labels: List[int], threshold: float = 0.5) -> float:
+    """Binary step-level accuracy at the given sigmoid threshold."""
     if not scores:
         return 0.0
     n_correct = sum((s >= threshold) == bool(l) for s, l in zip(scores, labels))
@@ -82,12 +84,13 @@ def compute_step_accuracy(scores: List[float], labels: List[int], threshold: flo
 
 
 def load_val_data(path: str) -> List[dict]:
-    import json
+    """Load PRM validation examples from a JSONL file."""
     with open(path) as f:
         return [json.loads(line) for line in f]
 
 
 def main() -> None:
+    """Entry point: parse args and run PRM evaluation."""
     parser = argparse.ArgumentParser(description="Evaluate PRM on step-level labels")
     parser.add_argument("--prm_checkpoint", required=True, help="Dir containing prm_head.pt and adapter weights")
     parser.add_argument("--sft_checkpoint", default=None,

@@ -87,6 +87,7 @@ def run_prm() -> None:
 
 @app.local_entrypoint()
 def main() -> None:
+    """Submit the PRM training job to Modal."""
     print("Submitting PRM training job to Modal...")
     print("(Make sure you've run `modal run modal/modal_prm.py::upload_data` first.)")
     run_prm.remote()
